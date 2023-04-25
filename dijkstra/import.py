@@ -51,7 +51,7 @@ class Import:
                     data = pd.read_csv(file_path, sep=";")
                 except Exception as exception:
                     print(
-                        "Le nom de l'extension du fichier ne correspond pas à son format. cause erreur:"
+                        "Le nom de l'extension du fichier ne correspond pas à son format. Cause erreur:"
                         + exception
                     )
 
@@ -60,7 +60,7 @@ class Import:
                     data = pd.read_excel(file_path)
                 except Exception as exception:
                     print(
-                        "Le nom de l'extension du fichier ne correspond pas à son format. cause erreur:"
+                        "Le nom de l'extension du fichier ne correspond pas à son format. Cause erreur:"
                         + exception
                     )
 
@@ -69,7 +69,7 @@ class Import:
                     data = pd.read_excel(file_path)
                 except Exception as exception:
                     print(
-                        "Le nom de l'extension du fichier ne correspond pas à son format. cause erreur:"
+                        "Le nom de l'extension du fichier ne correspond pas à son format. Cause erreur:"
                         + exception
                     )
 
