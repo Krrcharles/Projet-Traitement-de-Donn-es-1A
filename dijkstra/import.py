@@ -5,9 +5,9 @@ import pandas as pd
 
 
 class Import:
-    """Importation d'une base de données.
+    """Importation des données.
 
-    Cette classe permet d'importer une base de données
+    Cette classe permet d'importer des données
     et de vérifier que le fichier associé soit lisible.
 
     Parameters
@@ -26,8 +26,8 @@ class Import:
     def read(self):
         """Permet d'importer un fichier.
 
-        La fonction read permet d'importer un fichier csv, excel (xls ou xlsx) 
-        ou json sous forme de DataFrame pandas. Elle vérifiera que le fichier 
+        La fonction read permet d'importer un fichier csv, excel (xls ou xlsx)
+        ou json sous forme de DataFrame pandas. Elle vérifiera que le fichier
         à importer a une extension valable et le format correspondant.
 
 
