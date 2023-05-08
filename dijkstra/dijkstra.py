@@ -3,7 +3,7 @@ class Dijkstra:
     def __init__(self,graphe,source):
         if not isinstance(graphe,dict):
             raise TypeError("'graphe' n'est pas bien défini")
-        if not (source in graphe.keys())
+        if not (source in graphe.keys()):
             raise ValueError("'source' n'est pas dans le graphe")
         for i in graphe.values():
             for j in i:
