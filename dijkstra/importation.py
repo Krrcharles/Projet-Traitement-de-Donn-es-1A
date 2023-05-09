@@ -113,15 +113,15 @@ class Import:
         DataFrame pandas contenant les données fusionnées des 2 fichiers.
         """
         dataframe1 = self.read()
-        dataframe2 = Import(folder2,filename2).read()
-        if not isinstance(clef,str):
+        dataframe2 = Import(folder2, filename2).read()
+        if not isinstance(clef, str):
             raise TypeError("La clef doit correspondre au nom d'une colonne des deux fichiers.")
-        if not clef in dataframe1.columns.intersection(dataframe2.columns):
+        if clef not in dataframe1.columns.intersection(dataframe2.columns):
             raise ValueError("La clef n'est pas commune aux deux tables.")
-        else :    
-            return pd.merge(dataframe1,dataframe2, on = clef)
+        else:    
+            return pd.merge(dataframe1, dataframe2, on=clef)
         
-    def fusion_multiple(self,liste_folders,liste_filenames,liste_clefs):
+    def fusion_multiple(self, liste_folders, liste_filenames, liste_clefs):
         """Permet de fusionner plusieurs fichiers.
 
         La fonction fusion_multiple permet de fusionner plusieurs fichiers de 
@@ -147,11 +147,11 @@ class Import:
         pandas.core.frame.DataFrame
         DataFrame pandas contenant les données fusionnées des fichiers.
         """
-        if not isinstance(liste_folders,list):
+        if not isinstance(liste_folders, list):
             raise TypeError("La liste de dossiers doit être une instance de list")
-        if not isinstance(liste_filenames,list):
+        if not isinstance(liste_filenames, list):
             raise TypeError("La liste de fichiers doit être une instance de list")
-        if not isinstance(liste_clefs,list):
+        if not isinstance(liste_clefs, list):
             raise TypeError("La liste de clefs doit être une instance de list")
         
         if (len(liste_folders) != len(liste_filenames)) or (len(liste_folders) != len(liste_clefs)) :
@@ -162,7 +162,7 @@ class Import:
         else:
             if len(liste_folders) == 1:
                 return self.fusion(liste_folders[-1], liste_filenames[-1],liste_clefs[-1])
-            else :
+            else:
                 Import(liste_folders[-1], liste_filenames[-1]).fusion_multiple(liste_folders.pop(), liste_filenames.pop(), liste_clefs.pop())
 
 if __name__ == "__main__":
