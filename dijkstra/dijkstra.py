@@ -3,7 +3,7 @@ class Dijkstra:
 
     Classe modélisant deux versions de l'algorithme de Dijkstra :
     la première calculant le plus court chemin entre le noeud de
-    départ et tous les noeuds ateignables tandis que la deuxième
+    départ et tous les noeuds atteignables tandis que la deuxième
     se contente de trouver le plus court chemin avec une destination
     souhaitée et le noeud de départ.
 
@@ -45,7 +45,7 @@ class Dijkstra:
     def chemin_partout(self, infini=2**30):
 
         """Trouve le plus court chemin pour une multitude de destinations
-          ateignables.
+          atteignables.
 
         Renvoie pour chaque destination ateignable à partir du point de départ
         -c'est à dire s'il existe un chemin reliant le point de départ et la
@@ -60,7 +60,7 @@ class Dijkstra:
         Returns
         -------
         {noeud : [[noeud,...],distance],...} : dict
-            dictionnaire comportant pour chaque destination ateignable le plus
+            dictionnaire comportant pour chaque destination atteignable le plus
             court chemin et son coût.
 
         Examples
@@ -78,7 +78,7 @@ class Dijkstra:
         selection = self.source
         coefficient = 0
 
-        while len(marques) < taille_graph:
+        while len(marques) < taille_graph and selection is not None:
             # On marque la 'selection'
             marques.append(selection)
             # On parcours les voisins de 'selection'
@@ -107,21 +107,26 @@ class Dijkstra:
             if sommet != self.source:
                 parcours = [sommet]
                 longueur = distances[sommet][1]
-                # On parcours le graphe à l'envers pour obtenir le chemin
-                while sommet != self.source:
-                    sommet = distances[sommet][0]
-                    parcours.append(sommet)
-                parcours.reverse()
-                dict_parcours[sommet] = [parcours, longueur]
+                if longueur == infini:
+                    parcours = None
+
+                else:  # Parcourt le graphe à l'envers pour obtenir le chemin
+                    while sommet != self.source:
+                        sommet = distances[sommet][0]
+                        parcours.append(sommet)
+
+                    parcours.reverse()
+
+            dict_parcours[sommet] = [parcours, longueur]
 
         return dict_parcours
 
     def chemin_destination(self, destination, infini=2**30):
 
         """Trouve le plus court chemin pour une destination
-          ateignable donnée.
+          atteignable donnée.
 
-        Renvoie pour une destination ateignable à partir du point de départ
+        Renvoie pour une destination atteignable à partir du point de départ
         -c'est à dire s'il existe un chemin reliant le point de départ et la
         destination- une liste contenant les points dans l'odre de passage
         du chemin ainsi que le coût minimal associé au trajet.
@@ -157,7 +162,7 @@ class Dijkstra:
         selection = self.source
         coefficient = 0
 
-        while len(marques) < taille_graph:
+        while len(marques) < taille_graph and selection is not None:
             # On marque la 'selection'
             marques.append(selection)
             # On parcours les voisins de 'selection'
@@ -184,10 +189,15 @@ class Dijkstra:
         parcours = [destination]
         longueur = distances[destination][1]
         sommet = destination
-        # On parcours le graphe à l'envers pour obtenir le chemin
-        while sommet != self.source:
-            sommet = distances[sommet][0]
-            parcours.append(sommet)
-        parcours.reverse()
+
+        if longueur == infini:
+            parcours = None
+
+        else:  # Parcourt le graphe à l'envers pour obtenir le chemin
+            while sommet != self.source:
+                sommet = distances[sommet][0]
+                parcours.append(sommet)
+
+            parcours.reverse()
 
         return [parcours, longueur]
