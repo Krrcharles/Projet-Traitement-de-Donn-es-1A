@@ -22,15 +22,9 @@ class Traitement:
         if not isinstance(df, pd.DataFrame):
             raise TypeError("df doit être un dataframe pandas")
         self.df = df
-
-        if isinstance(colonne_noeud_depart, str):
-            self.colonne_noeud_depart = df.columns.get_loc(colonne_noeud_depart)
-
-        if isinstance(colonne_noeud_arrivee, str):
-            self.colonne_noeud_arrivee = df.columns.get_loc(colonne_noeud_arrivee)
-
-        if isinstance(colonne_distance, str):
-            self.colonne_distance = df.columns.get_loc(colonne_distance)
+        self.colonne_noeud_depart = colonne_noeud_depart
+        self.colonne_noeud_arrivee = df.columns.get_loc(colonne_noeud_arrivee)
+        self.colonne_distance = df.columns.get_loc(colonne_distance)
 
     def ajoute(self, ligne):
         """
@@ -62,7 +56,7 @@ class Traitement:
         """
         self.df = self.df.drop(ligne)
 
-    def _graph(self):
+    def graph(self):
         """
         Crée un graphe représentant les nœuds et les distances entre eux.
 
