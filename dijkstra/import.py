@@ -38,7 +38,7 @@ class Import:
 
         Examples
         --------
-        >>> trajets_sncf = Import("Data", "referentiel-gares-voyageurs.csv")
+        >>> trajets_sncf = Import("data", "referentiel-gares-voyageurs.csv")
         >>> print(trajets_sncf.read().iat[0,2])
         87784793
         """
@@ -86,9 +86,56 @@ class Import:
                 raise TypeError("Mauvaise extension")
 
         return data
+    
+    def fusion(self, folder2, filename2, clef1, clef2, type_fusion='inner'):
+        """Permet de fusionner 2 fichiers.
 
+        La fonction fusion permet de fusionner deux fichiers de types csv,
+        excel (xls ou xlsx) ou json (les formats des fichiers étant éventuellement 
+        distincts) sous forme d'un unique DataFrame pandas. Elle vérifiera 
+        que les clefs permettant de fusionner les 2 fichiers existent.
+
+        Parameters
+        ----------
+        folder2 : str
+        Nom du dossier dans lequel se trouve le fichier à fusionner 
+        (avec le fichier importé)
+
+        filename2 : str
+        Nom du fichier à fusionner (avec le fichier importé)
+
+        clef1 : str
+        Nom de la colonne en commun des fichiers à fusionner
+        (pour le fichier 1)
+
+        clef2 : str
+        Nom de la colonne en commun des fichiers à fusionner
+        (pour le fichier 2)
+
+        type_fusion : str
+        Type de fusion entre les deux fichiers (on utilisera ici 
+        une jointure interne, "inner join" en anglais)
+
+        Returns
+        -------
+        pandas.core.frame.DataFrame
+        DataFrame pandas contenant les données fusionnées des 2 fichiers.
+        """
+        if clef2 is None:
+            clef2 = clef1
+        dataframe1 = self.read()
+        dataframe2 = Import(folder2, filename2).read()
+        if not isinstance(clef1, str):
+            raise TypeError("La clef doit correspondre au nom d'une colonne du fichier 1.")
+        if not isinstance(clef2, str):
+            raise TypeError("La clef doit correspondre au nom d'une colonne du fichier 2.")
+        
+        if clef1 not in dataframe1.columns or clef2 not in dataframe2.columns:
+            raise ValueError("Les clefs de fusion doivent être des colonnes des fichiers.")
+        else:    
+            return pd.merge(dataframe1, dataframe2, on=[clef1, clef2], how = type_fusion)
+        
 
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod(verbose=True)
