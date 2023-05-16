@@ -92,15 +92,15 @@ def filtrer_dataframe(self, colonne, condition, valeur):
     pandas.DataFrame : Le DataFrame filtré.
     """
     if condition == '>':
-        return df[df[colonne] > valeur]
+        return self.df[self.df[colonne] > valeur]
     if condition == '<':
-        return df[df[colonne] < valeur]
+        return self.df[self.df[colonne] < valeur]
     if condition == '==':
-        return df[df[colonne] == valeur]
+        return self.df[self.df[colonne] == valeur]
     if condition == '>=':
-        return df[df[colonne] >= valeur]
+        return self.df[self.df[colonne] >= valeur]
     if condition == '<=':
-        return df[df[colonne] <= valeur]
+        return self.df[self.df[colonne] <= valeur]
     if condition == '!=':
-        return df[df[colonne] != valeur]
-    raise ValueError(f"Condition invalide {condition}. Choisissez parmi '>', '<', '==', '>=', '<=', '!='.")
+        return self.df[self.df[colonne] != valeur]
+    raise ValueError(f"Condition invalide {condition}. Doit etre '>', '<', '==', '>=', '<=', '!='.")
