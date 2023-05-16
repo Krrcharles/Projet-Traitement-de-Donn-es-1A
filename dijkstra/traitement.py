@@ -78,8 +78,7 @@ def _graph(self):
         graph[name] = adj_list
     return graph
 
-@staticmethod
-def filtrer_dataframe(df, colonne, condition, valeur):
+def filtrer_dataframe(self, colonne, condition, valeur):
     """
     Filtre un DataFrame en fonction d'une condition et d'une valeur dans une colonne spécifique.
 
