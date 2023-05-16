@@ -10,7 +10,7 @@ class Dijkstra:
     Parameters
     ----------
     graphe : {noeud : [(noeud,distance),...],...} dict
-            modélisation par un dictionnaire de liste contenant
+            modélisation par un dictionnaire dont liste contenant
             pour chaque noeud, ses noeuds voisins et le coût
             associé au déplacement
 
@@ -32,7 +32,7 @@ class Dijkstra:
 
         for i in graphe.values():
             for j in i:
-                if not isinstance(j[1], float):
+                if not (isinstance(j[1], float ) or isinstance(j[1],int)) :
                     raise TypeError("""Les poids associés aux arrêtes ne sont
                     pas des nombres réels""")
                 if j[1] < 0:
@@ -107,17 +107,17 @@ class Dijkstra:
             if sommet != self.source:
                 parcours = [sommet]
                 longueur = distances[sommet][1]
+                intermediaire = sommet
                 if longueur == infini:
-                    parcours = None
+                    dict_parcours[sommet] = 'Pas de trajet'
 
                 else:  # Parcourt le graphe à l'envers pour obtenir le chemin
-                    while sommet != self.source:
-                        sommet = distances[sommet][0]
-                        parcours.append(sommet)
+                    while intermediaire != self.source:
+                        intermediaire = distances[intermediaire][0]
+                        parcours.append(intermediaire)
 
                     parcours.reverse()
-
-            dict_parcours[sommet] = [parcours, longueur]
+                    dict_parcours[sommet] = [parcours, longueur]
 
         return dict_parcours
 
@@ -148,6 +148,8 @@ class Dijkstra:
         --------
         >>>
         """
+        if destination == self.source:
+            raise ValueError("'destination' est la source")
 
         if destination not in self.graphe.keys():
             raise ValueError("'destination' n'est pas dans le graphe")
