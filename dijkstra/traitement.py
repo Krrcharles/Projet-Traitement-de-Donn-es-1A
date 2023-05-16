@@ -66,11 +66,10 @@ class Traitement:
             Le graphe représenté sous forme de dictionnaire.
         """
         df_grouped = self.df.groupby([self.colonne_noeud_depart])
-        graph = {}
-        for name, group in df_grouped:
-            adj_list = list(zip(group[self.colonne_noeud_arrivee], group[self.colonne_distance]))
-            graph[name] = adj_list
-        return graph
+        graphe = {}
+        for noeud, data in df_grouped:
+            graphe[noeud] = list(zip(data[self.colonne_noeud_arrivee], data[self.colonne_distance]))
+        return graphe
 
     def filtrer_dataframe(self, colonne, condition, valeur):
         """
