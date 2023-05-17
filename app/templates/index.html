@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recherche d'itinéraire de train</title>
+    <link rel="stylesheet" href="static\css\style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #map { height: 88vh; }
+        #info { padding: 1rem; }
+        #search-form { display: flex; gap: 1rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <form id="search-form">
+        <label for="from-station">De :</label>
+        <input type="text" id="from-station" list="stations" placeholder="Gare de départ">
+        <label for="to-station">À :</label>
+        <input type="text" id="to-station" list="stations" placeholder="Gare d'arrivée">
+        <button type="button" onclick="searchRoute()">Rechercher</button>
+    </form>
+    <div id="info">Sélectionnez deux gares et cliquez sur "Rechercher".</div>
+    <div id="map"></div>
+
+    <datalist id="stations">
+        <option value="Gare deLyon">
+<option value="Gare du Nord">
+<option value="Gare Saint-Lazare">
+<option value="Gare Montparnasse">
+<option value="Gare de l'Est">
+</datalist>
+
+php
+
+<script>
+    // Initialisation de la carte
+    var map = L.map('map').setView([48.8566, 2.3522], 13);
+
+    // Ajout d'un fond de carte OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Liste de gares
+    var stations = [
+        { position: [48.8443, 2.3744], name: 'Gare de Lyon' },
+        { position: [48.8807, 2.3553], name: 'Gare du Nord' },
+        { position: [48.8769, 2.3230], name: 'Gare Saint-Lazare' },
+        { position: [48.8412, 2.3200], name: 'Gare Montparnasse' },
+        { position: [48.8766, 2.3591], name: 'Gare de l\'Est' }
+    ];
+
+    // Création d'un groupe de clusters
+    var markersCluster = L.markerClusterGroup();
+
+    // Ajout des marqueurs de gares sur la carte
+    stations.forEach(function (station) {
+        var marker = L.marker(station.position);
+        marker.on('click', function () {
+            selectStation(station.name);
+        });
+
+    // Affichage du nom de la gare lors du survol du marqueur
+    marker.on('mouseover', function (e) {
+        var popup = L.popup()
+            .setLatLng(e.latlng)
+            .setContent(station.name)
+            .openOn(map);
+    });
+
+    // Fermeture de la popup lorsque la souris quitte le marqueur
+    marker.on('mouseout', function () {
+        map.closePopup();
+    });
+
+    // Ajout des marqueurs au groupe de clusters
+    markersCluster.addLayer(marker);
+});
+
+
+    // Ajout du groupe de clusters à la carte
+    map.addLayer(markersCluster);
+
+    function selectStation(stationName) {
+        var fromStationInput = document.getElementById('from-station');
+        var toStationInput = document.getElementById('to-station');
+        
+        if (!fromStationInput.value) {
+            fromStationInput.value = stationName;
+            } else if (!toStationInput.value && fromStationInput.value !== stationName) {
+            toStationInput.value = stationName;
+            }
+    }
+
+    // Fonction pour la recherche d'itinéraire
+    function searchRoute() {
+        var fromStation = document.getElementById('from-station').value;
+        var toStation = document.getElementById('to-station').value;
+        
+        if (fromStation && toStation && fromStation !== toStation) {
+            $.post("/search_route", { from_station: fromStation, to_station: toStation }, function (result) {
+                localStorage.setItem("route", result.route);
+                window.location.href = "/route";
+            });
+        } else {
+            document.getElementById('info').innerHTML = 'Veuillez sélectionner deux gares différentes.';
+        }
+    }
+</script>
+
+</body>
+</html>
