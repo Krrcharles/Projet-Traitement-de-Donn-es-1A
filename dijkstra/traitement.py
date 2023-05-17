@@ -17,90 +17,83 @@ class Traitement:
     colonne_distance : int
         L'indice de la colonne contenant les distances entre les nœuds.
     """
-def __init__(self, df, colonne_noeud_depart, colonne_noeud_arrivee, colonne_distance):
+    def __init__(self, df, colonne_noeud_depart, colonne_noeud_arrivee, colonne_distance):
 
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError("df doit être un dataframe pandas")
-    self.df = df
-
-    if isinstance(colonne_noeud_depart, str):
-        self.colonne_noeud_depart = df.columns.get_loc(colonne_noeud_depart)
-
-    if isinstance(colonne_noeud_arrivee, str):
+        if not isinstance(df, pd.DataFrame):
+            raise TypeError("df doit être un dataframe pandas")
+        self.df = df
+        self.colonne_noeud_depart = colonne_noeud_depart
         self.colonne_noeud_arrivee = df.columns.get_loc(colonne_noeud_arrivee)
-
-    if isinstance(colonne_distance, str):
         self.colonne_distance = df.columns.get_loc(colonne_distance)
 
-def ajoute(self, ligne):
-    """
-    Ajoute une arête à notre graphe.
+    def ajoute(self, ligne):
+        """
+        Ajoute une arête à notre graphe.
 
-    Paramètres
-    ----------
-    ligne : list
-        L'arête à ajouter.
+        Paramètres
+        ----------
+        ligne : list
+            L'arête à ajouter.
 
-    Retour
-    -------
-    None
-    """
-    self.df = self.df.append(pd.DataFrame(ligne).T, ignore_index=True)
+        Retour
+        -------
+        None
+        """
+        self.df = self.df.append(pd.DataFrame(ligne).T, ignore_index=True)
 
-def supprimer_arete(self, ligne):
-    """
-    Supprime une arête de notre graphe.
+    def supprimer_arete(self, ligne):
+        """
+        Supprime une arête de notre graphe.
 
-    Paramètres
-    ----------
-    ligne : int
-        L'indice de l'arête à supprimer.
+        Paramètres
+        ----------
+        ligne : int
+            L'indice de l'arête à supprimer.
 
-    Retour
-    -------
-    None
-    """
-    self.df = self.df.drop(ligne)
+        Retour
+        -------
+        None
+        """
+        self.df = self.df.drop(ligne)
 
-def _graph(self):
-    """
-    Crée un graphe représentant les nœuds et les distances entre eux.
+    def graph(self):
+        """
+        Crée un graphe représentant les nœuds et les distances entre eux.
 
-    Retour :
-    --------
-    dict :
-        Le graphe représenté sous forme de dictionnaire.
-    """
-    df_grouped = self.df.groupby([self.colonne_noeud_depart])
-    graph = {}
-    for name, group in df_grouped:
-        adj_list = list(zip(group[self.colonne_noeud_arrivee], group[self.colonne_distance]))
-        graph[name] = adj_list
-    return graph
+        Retour :
+        --------
+        dict :
+            Le graphe représenté sous forme de dictionnaire.
+        """
+        df_grouped = self.df.groupby([self.colonne_noeud_depart])
+        graphe = {}
+        for noeud, data in df_grouped:
+            graphe[noeud] = list(zip(data[self.colonne_noeud_arrivee], data[self.colonne_distance]))
+        return graphe
 
-def filtrer_dataframe(self, colonne, condition, valeur):
-    """
-    Filtre un DataFrame en fonction d'une condition et d'une valeur dans une colonne spécifique.
+    def filtrer_dataframe(self, colonne, condition, valeur):
+        """
+        Filtre un DataFrame en fonction d'une condition et d'une valeur dans une colonne spécifique.
 
-    Paramètres :
-    df (pandas.DataFrame) : Le DataFrame à filtrer.
-    colonne (str) : Le nom de la colonne sur laquelle appliquer le filtre.
-    condition (str) : La condition à appliquer ('>', '<', '==', '>=', '<=', '!=').
-    valeur (any) : La valeur à comparer.
+        Paramètres :
+        df (pandas.DataFrame) : Le DataFrame à filtrer.
+        colonne (str) : Le nom de la colonne sur laquelle appliquer le filtre.
+        condition (str) : La condition à appliquer ('>', '<', '==', '>=', '<=', '!=').
+        valeur (any) : La valeur à comparer.
 
-    Retour :
-    pandas.DataFrame : Le DataFrame filtré.
-    """
-    if condition == '>':
-        return self.df[self.df[colonne] > valeur]
-    if condition == '<':
-        return self.df[self.df[colonne] < valeur]
-    if condition == '==':
-        return self.df[self.df[colonne] == valeur]
-    if condition == '>=':
-        return self.df[self.df[colonne] >= valeur]
-    if condition == '<=':
-        return self.df[self.df[colonne] <= valeur]
-    if condition == '!=':
-        return self.df[self.df[colonne] != valeur]
-    raise ValueError(f"Condition invalide {condition}. Doit etre '>', '<', '==', '>=', '<=', '!='.")
+        Retour :
+        pandas.DataFrame : Le DataFrame filtré.
+        """
+        if condition == '>':
+            return self.df[self.df[colonne] > valeur]
+        if condition == '<':
+            return self.df[self.df[colonne] < valeur]
+        if condition == '==':
+            return self.df[self.df[colonne] == valeur]
+        if condition == '>=':
+            return self.df[self.df[colonne] >= valeur]
+        if condition == '<=':
+            return self.df[self.df[colonne] <= valeur]
+        if condition == '!=':
+            return self.df[self.df[colonne] != valeur]
+        raise ValueError(f"Condition invalide {condition}. Doit etre '>', '<', '==', '>=', '<=', '!='.")
