@@ -1,3 +1,7 @@
+"""Algorithme de Dijkstra permettant de trouver le plus court chemin
+dans un graphe"""
+
+
 class Dijkstra:
     """Algorithme du plus court chemin.
 
@@ -10,16 +14,13 @@ class Dijkstra:
     Parameters
     ----------
     graphe : {noeud : [(noeud,distance),...],...} dict
-            modélisation par un dictionnaire dont liste contenant
-            pour chaque noeud, ses noeuds voisins et le coût
-            associé au déplacement
+            modélisation par un dictionnaire dont les clés
+            représentent des noeuds et dont les valeurs sont
+            des listes contenant un tuple formé du noeud voisin
+            et le coût associé au déplacement
 
     source : str
             noeud de départ nécessairement contenu dans le graphe
-
-    Examples
-    --------
-    >>>
     """
 
     def __init__(self, graphe, source):
@@ -32,7 +33,7 @@ class Dijkstra:
 
         for i in graphe.values():
             for j in i:
-                if not (isinstance(j[1], float ) or isinstance(j[1],int)) :
+                if not isinstance(j[1], (float, int)):
                     raise TypeError("""Les poids associés aux arrêtes ne sont
                     pas des nombres réels""")
                 if j[1] < 0:
@@ -42,7 +43,7 @@ class Dijkstra:
         self.graphe = graphe
         self.source = source
 
-    def chemin_partout(self, infini=2**30):
+    def chemin_partout(self):
 
         """Trouve le plus court chemin pour une multitude de destinations
           atteignables.
@@ -50,24 +51,19 @@ class Dijkstra:
         Renvoie pour chaque destination ateignable à partir du point de départ
         -c'est à dire s'il existe un chemin reliant le point de départ et la
         destination- une liste contenant les points dans l'ordre du passage du
-        chemin ainsi que le coût minimal associé au trajet.
-
-        Parameters
-        ----------
-        infini : float
-            permet de définir l'infiniment grand
+        chemin ainsi que le coût minimal associé au trajet. Si le point n'est
+        pas ateignable, renvoie 'Pas de trajet'.
 
         Returns
         -------
         {noeud : [[noeud,...],distance],...} : dict
-            dictionnaire comportant pour chaque destination atteignable le plus
-            court chemin et son coût.
-
-        Examples
-        --------
-        >>>
+            renvoie un dictionnaire dont les clés sont représentés par des
+            noeuds et les valeurs une liste comportant le plus court chemin
+            et son coût si le noeud est atteignable sinon le
+            string 'Pas de trajet'
         """
 
+        infini = 2**30
         marques = []  # Contiendra le nom des sommets visités
         # Distance minimale trouvée pour chaque valeur dès le départ
         distances = {sommet: (None, infini) for sommet in self.graphe}
@@ -121,7 +117,7 @@ class Dijkstra:
 
         return dict_parcours
 
-    def chemin_destination(self, destination, infini=2**30):
+    def chemin_destination(self, destination):
 
         """Trouve le plus court chemin pour une destination
           atteignable donnée.
@@ -135,9 +131,6 @@ class Dijkstra:
         ----------
         destination : str
             point d'arrivée qui doit être contenu dans le graphe
-
-        infini : float
-            permet de définir l'infiniment grand
 
         Returns
         -------
@@ -154,6 +147,7 @@ class Dijkstra:
         if destination not in self.graphe.keys():
             raise ValueError("'destination' n'est pas dans le graphe")
 
+        infini = 2**30
         marques = []  # Contiendra le nom des sommets visités
         # Distance minimale trouvée pour chaque valeur dès le départ
         distances = {sommet: (None, infini) for sommet in self.graphe}
@@ -193,13 +187,11 @@ class Dijkstra:
         sommet = destination
 
         if longueur == infini:
-            parcours = None
+            return 'Pas de trajet'
 
-        else:  # Parcourt le graphe à l'envers pour obtenir le chemin
-            while sommet != self.source:
-                sommet = distances[sommet][0]
-                parcours.append(sommet)
+        # Parcourt le graphe à l'envers pour obtenir le chemin
+        while sommet != self.source:
+            sommet = distances[sommet][0]
+            parcours.append(sommet)
 
-            parcours.reverse()
-
-        return [parcours, longueur]
+        return [parcours.reverse(), longueur]
