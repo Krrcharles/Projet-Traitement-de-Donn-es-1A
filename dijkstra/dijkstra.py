@@ -13,38 +13,48 @@ class Dijkstra:
 
     Parameters
     ----------
-    graphe : {noeud : [(noeud,distance),...],...} dict
-            modélisation par un dictionnaire dont les clés
-            représentent des noeuds et dont les valeurs sont
-            des listes contenant un tuple formé du noeud voisin
-            et le coût associé au déplacement
-
-    source : str
-            noeud de départ nécessairement contenu dans le graphe
+    dataf : pandas.DataFrame
+        Le dataframe contenant les données du graphe.
+    colonne_noeud_depart : int
+        L'indice de la colonne contenant les nœuds de départ.
+    colonne_noeud_arrivee : int
+        L'indice de la colonne contenant les nœuds d'arrivée.
+    colonne_distance : int
+        L'indice de la colonne contenant les distances entre les nœuds.
     """
 
-    def __init__(self, graphe, source):
+    def __init__(self, dataf, colonne_noeud_depart, colonne_noeud_arrivee,
+                 colonne_distance):
 
-        if not isinstance(graphe, dict):
-            raise TypeError("'graphe' n'est pas bien défini")
+        for i in dataf[colonne_distance]:
+            if not isinstance(i, (float, int)):
+                raise TypeError("""Les poids associés aux arrêtes ne sont
+                    pas tous des nombres réels""")
+            if i < 0:
+                raise ValueError("""Les poids associés aux arrêtes ne sont
+                    pas tous des réels strictement positifs""")
 
-        if source not in graphe.keys():
-            raise ValueError("'source' n'est pas dans le graphe")
+        self.dataf = dataf
+        self.colonne_noeud_depart = colonne_noeud_depart
+        self.colonne_noeud_arrivee = colonne_noeud_arrivee
+        self.colonne_distance = colonne_distance
 
-        for i in graphe.values():
-            for j in i:
-                if not isinstance(j[1], (float, int)):
-                    raise TypeError("""Les poids associés aux arrêtes ne sont
-                    pas des nombres réels""")
-                if j[1] < 0:
-                    raise ValueError("""Les poids associés aux arrêtes ne sont
-                    pas des réels strictement positifs""")
+    def graph(self):
+        """Crée un graphe représentant les nœuds et les distances entre eux.
 
-        self.graphe = graphe
-        self.source = source
+        Retour :
+        --------
+        dict :
+            Le graphe représenté sous forme de dictionnaire.
+        """
+        df_grouped = self.dataf.groupby([self.colonne_noeud_depart])
+        graphe = {}
+        for noeud, data in df_grouped:
+            graphe[noeud] = list(zip(data[self.colonne_noeud_arrivee],
+                                     data[self.colonne_distance]))
+        return graphe
 
-    def chemin_partout(self):
-
+    def chemin_partout(self, source):
         """Trouve le plus court chemin pour une multitude de destinations
           atteignables.
 
@@ -54,6 +64,11 @@ class Dijkstra:
         chemin ainsi que le coût minimal associé au trajet. Si le point n'est
         pas ateignable, renvoie 'Pas de trajet'.
 
+        Parameters
+        ----------
+        source : str / int
+            noeud de départ nécessairement contenu dans le graphe
+
         Returns
         -------
         {noeud : [[noeud,...],distance],...} : dict
@@ -62,23 +77,26 @@ class Dijkstra:
             et son coût si le noeud est atteignable sinon le
             string 'Pas de trajet'
         """
+        if source not in self.dataf[self.colonne_noeud_depart]:
+            raise ValueError("'source' est isolée")
 
-        infini = 2**30
+        graphe = self.graph()
         marques = []  # Contiendra le nom des sommets visités
         # Distance minimale trouvée pour chaque valeur dès le départ
-        distances = {sommet: (None, infini) for sommet in self.graphe}
+        distances = {sommet: (None, 2**30) for sommet in
+                     set(self.dataf[self.colonne_noeud_depart]).union(
+                     set(self.dataf[self.colonne_noeud_arrivee]))}
         # Sommet d'origine (None par défaut), distance
-        distances[self.source] = 0  # On initialise la distance du départ
+        distances[source] = 0  # On initialise la distance du départ
         # Nombre de sommets du graphe, longueur du dictionnaire
-        taille_graph = len(self.graphe)
-        selection = self.source
+        selection = source
         coefficient = 0
 
-        while len(marques) < taille_graph and selection is not None:
+        while len(marques) < len(graphe) and selection is not None:
             # On marque la 'selection'
             marques.append(selection)
             # On parcours les voisins de 'selection'
-            for voisin in self.graphe[selection]:
+            for voisin in graphe[selection]:
                 # voisin est le couple (noeud, poids)
                 noeud = voisin[0]  # Le sommet qu'on parcourt
                 poids = voisin[1]  # Le poids de selection au sommet
@@ -91,34 +109,33 @@ class Dijkstra:
                         distances[noeud] = (selection, coefficient + poids)
                     # On recherche le minimum parmi les non marqués
 
-            minimum = (None, infini)
-            for sommet in self.graphe:
+            minimum = (None, 2**30)
+            for sommet in graphe:
                 if sommet not in marques and distances[sommet][1] < minimum[1]:
                     minimum = (sommet, distances[sommet][1])
             # puis il devient notre nouvelle 'selection'
             selection, coefficient = minimum
 
         dict_parcours = {}
-        for sommet in self.graphe:
-            if sommet != self.source:
+        for sommet in graphe:
+            if sommet != source:
                 parcours = [sommet]
-                longueur = distances[sommet][1]
                 intermediaire = sommet
-                if longueur == infini:
+                if distances[sommet][1] == 2**30:
                     dict_parcours[sommet] = 'Pas de trajet'
 
                 else:  # Parcourt le graphe à l'envers pour obtenir le chemin
-                    while intermediaire != self.source:
+                    while intermediaire != source:
                         intermediaire = distances[intermediaire][0]
                         parcours.append(intermediaire)
 
                     parcours.reverse()
-                    dict_parcours[sommet] = [parcours, longueur]
+                    dict_parcours[sommet] = [parcours,
+                                             distances[sommet][1]]
 
         return dict_parcours
 
-    def chemin_destination(self, destination):
-
+    def chemin_destination(self, source, destination):
         """Trouve le plus court chemin pour une destination
           atteignable donnée.
 
@@ -129,40 +146,40 @@ class Dijkstra:
 
         Parameters
         ----------
+        source : str / int
+            noeud de départ nécessairement contenu dans le graphe
         destination : str
-            point d'arrivée qui doit être contenu dans le graphe
+            noeud d'arrivée qui doit être contenu dans le graphe
 
         Returns
         -------
         [[noeud,...],distance] : list
             liste comportant le plus court chemin et son coût.
-
-        Examples
-        --------
-        >>>
         """
-        if destination == self.source:
+        if destination == source:
             raise ValueError("'destination' est la source")
+        if source not in self.dataf[self.colonne_noeud_depart]:
+            raise ValueError("'source' est isolée")
+        if destination not in self.dataf[self.colonne_noeud_arrivee]:
+            raise ValueError("'destination' n'est pas atteignable")
 
-        if destination not in self.graphe.keys():
-            raise ValueError("'destination' n'est pas dans le graphe")
-
-        infini = 2**30
+        graphe = self.graph()
         marques = []  # Contiendra le nom des sommets visités
         # Distance minimale trouvée pour chaque valeur dès le départ
-        distances = {sommet: (None, infini) for sommet in self.graphe}
+        distances = {sommet: (None, 2**30) for sommet in
+                     set(self.dataf[self.colonne_noeud_depart]).union(
+                     set(self.dataf[self.colonne_noeud_arrivee]))}
         # Sommet d'origine (None par défaut), distance
-        distances[self.source] = 0  # On initialise la distance du départ
+        distances[source] = 0  # On initialise la distance du départ
         # Nombre de sommets du graphe, longueur du dictionnaire
-        taille_graph = len(self.graphe)
-        selection = self.source
+        selection = source
         coefficient = 0
 
-        while len(marques) < taille_graph and selection is not None:
+        while len(marques) < len(graphe) and selection is not None:
             # On marque la 'selection'
             marques.append(selection)
             # On parcours les voisins de 'selection'
-            for voisin in self.graphe[selection]:
+            for voisin in graphe[selection]:
                 # voisin est le couple (noeud, poids)
                 noeud = voisin[0]  # Le sommet qu'on parcourt
                 poids = voisin[1]  # Le poids de selection au sommet
@@ -175,8 +192,8 @@ class Dijkstra:
                         distances[noeud] = (selection, coefficient + poids)
                     # On recherche le minimum parmi les non marqués
 
-            minimum = (None, infini)
-            for sommet in self.graphe:
+            minimum = (None, 2**30)
+            for sommet in graphe:
                 if sommet not in marques and distances[sommet][1] < minimum[1]:
                     minimum = (sommet, distances[sommet][1])
             # puis il devient notre nouvelle 'selection'
@@ -186,12 +203,12 @@ class Dijkstra:
         longueur = distances[destination][1]
         sommet = destination
 
-        if longueur == infini:
+        if longueur == 2**30:
             return 'Pas de trajet'
 
         # Parcourt le graphe à l'envers pour obtenir le chemin
-        while sommet != self.source:
+        while sommet != source:
             sommet = distances[sommet][0]
             parcours.append(sommet)
-
-        return [parcours.reverse(), longueur]
+        parcours.reverse()
+        return [parcours, longueur]

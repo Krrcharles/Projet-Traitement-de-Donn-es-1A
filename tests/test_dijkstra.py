@@ -1,6 +1,6 @@
-# Tests sur le calcul du plus court chemin avec pytest
-import pytest
+""" Tests sur le calcul du plus court chemin avec pytest """
 import re
+import pytest
 from dijkstra.dijkstra import Dijkstra
 
 
