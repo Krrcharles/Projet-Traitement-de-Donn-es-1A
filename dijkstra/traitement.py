@@ -23,8 +23,8 @@ class Traitement:
             raise TypeError("df doit être un dataframe pandas")
         self.df = df
         self.colonne_noeud_depart = colonne_noeud_depart
-        self.colonne_noeud_arrivee = df.columns.get_loc(colonne_noeud_arrivee)
-        self.colonne_distance = df.columns.get_loc(colonne_distance)
+        self.colonne_noeud_arrivee = colonne_noeud_arrivee
+        self.colonne_distance = colonne_distance
 
     def ajoute(self, ligne):
         """
