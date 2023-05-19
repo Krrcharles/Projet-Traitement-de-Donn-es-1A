@@ -1,7 +1,7 @@
 from importation import *
 from traitement import *
 import pandas as pd
-
+from dijkstra import *
 
 df = Import("data", "tarifs-tgv-inoui-ouigo.csv").read()
 
@@ -11,14 +11,12 @@ proc = Traitement(df, "Gare origine - code UIC", "Gare destination - code UIC", 
 
 df = proc.df
 
-# Initialisation du dictionnaire
-graphe = {}
 
-# Groupement des données par noeud de départ
-grouped = df.groupby('Gare origine - code UIC')
 
-for noeud, data in grouped:
-    graphe[noeud] = list(zip(data['Gare destination - code UIC'], data['Prix minimum']))
+g = proc.graph()
+d = Dijkstra(g, 71116000)
 
-print(graphe)
+print(g[71116000])
+
+print(d.chemin_partout())
 
