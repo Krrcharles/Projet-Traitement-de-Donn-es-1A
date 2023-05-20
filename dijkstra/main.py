@@ -18,9 +18,9 @@ d = Dijkstra(df, "Gare origine - code UIC", "Gare destination - code UIC", "Prix
 
 #print(g[71116000])
 #print(d.graph()[71116000])
-#print(d.graph()[87671008]) provoque erreur
+#print(d.graph()[87671008])  #provoque erreur car pas une clé (normal)
 #print(d.chemin_partout(71116000))
-#print(d.chemin_partout(87671008)) #cas de tarbes
+#print(d.chemin_partout(87671008))  #cas de tarbes : erreur = 'source' est isolée (normal)
 #print(d.chemin_destination(71116000,87671008))
 
 

@@ -1,5 +1,5 @@
 """Algorithme de Dijkstra permettant de trouver le plus court chemin
-dans un graphe"""
+dans un dataframe."""
 
 
 class Dijkstra:
@@ -8,10 +8,11 @@ class Dijkstra:
     Classe modélisant deux versions de l'algorithme de Dijkstra :
     la première calculant le plus court chemin entre le noeud de
     départ et tous les noeuds atteignables tandis que la deuxième
-    se contente de trouver le plus court chemin avec une destination
-    souhaitée et le noeud de départ.
+    se contente de trouver le plus court chemin avec un noeud
+    d'arrivée et le noeud de départ. La classe modélise également
+    le graphe utilisé dans ces deux différentes versions.
 
-    Parameters
+    Parametres
     ----------
     dataf : pandas.DataFrame
         Le dataframe contenant les données du graphe.
@@ -26,12 +27,12 @@ class Dijkstra:
     def __init__(self, dataf, colonne_noeud_depart, colonne_noeud_arrivee,
                  colonne_distance):
 
-        for i in dataf[colonne_distance]:
+        for i in set(dataf[colonne_distance]):
             if not isinstance(i, (float, int)):
-                raise TypeError("""Les poids associés aux arrêtes ne sont
+                raise TypeError("""Les distances associées aux arrêtes ne sont
                     pas tous des nombres réels""")
             if i < 0:
-                raise ValueError("""Les poids associés aux arrêtes ne sont
+                raise ValueError("""Les distances associées aux arrêtes ne sont
                     pas tous des réels strictement positifs""")
 
         self.dataf = dataf
@@ -42,9 +43,15 @@ class Dijkstra:
     def graph(self):
         """Crée un graphe représentant les nœuds et les distances entre eux.
 
-        Retour :
+        Le graphe est représenté sous la forme d'un dictionnaire dont les
+        clés sont les noeuds non culs-de-sac, c'est à dire qu'il existe un
+        chemin amenant à une autre destination, et les valeurs une liste
+        contenant les couples noeuds voisins et la distance associée également
+        dans une liste.
+
+        Renvoie
         --------
-        dict :
+        {noeud : [(noeud_voisin,distance),...],...} : dict
             Le graphe représenté sous forme de dictionnaire.
         """
         df_grouped = self.dataf.groupby([self.colonne_noeud_depart])
@@ -58,27 +65,29 @@ class Dijkstra:
         """Trouve le plus court chemin pour une multitude de destinations
           atteignables.
 
-        Renvoie pour chaque destination ateignable à partir du point de départ
-        -c'est à dire s'il existe un chemin reliant le point de départ et la
-        destination- une liste contenant les points dans l'ordre du passage du
-        chemin ainsi que le coût minimal associé au trajet. Si le point n'est
-        pas ateignable, renvoie 'Pas de trajet'.
+        Renvoie pour chaque noeud atteignable à partir du noeud source
+        - c'est à dire s'il existe un chemin reliant le reliant au noeud
+        source - une liste contenant les noeuds dans l'ordre de
+        passage du chemin ainsi que le coût minimal associé au trajet.
+        Si le noeud n'est pas atteignable, la valeur associée au noeud
+        est 'Pas de trajet'.
 
-        Parameters
+        Parametre
         ----------
         source : str / int
-            noeud de départ nécessairement contenu dans le graphe
+            noeud de départ nécessairement contenu dans la colonne des départs
+            de la table.
 
-        Returns
+        Renvoie
         -------
-        {noeud : [[noeud,...],distance],...} : dict
+        {noeud : [[noeud,...],distance] / 'Pas de trajet',...} : dict
             renvoie un dictionnaire dont les clés sont représentés par des
             noeuds et les valeurs une liste comportant le plus court chemin
             et son coût si le noeud est atteignable sinon le
-            string 'Pas de trajet'
+            string 'Pas de trajet'.
         """
-        if source not in self.dataf[self.colonne_noeud_depart]:
-            raise ValueError("'source' est isolée")
+        if source not in set(self.dataf[self.colonne_noeud_depart]):
+            raise ValueError(f"{source} est isolée")
 
         graphe = self.graph()
         marques = []  # Contiendra le nom des sommets visités
@@ -117,7 +126,7 @@ class Dijkstra:
             selection, coefficient = minimum
 
         dict_parcours = {}
-        for sommet in graphe:
+        for sommet in distances:
             if sommet != source:
                 parcours = [sommet]
                 intermediaire = sommet
@@ -139,29 +148,31 @@ class Dijkstra:
         """Trouve le plus court chemin pour une destination
           atteignable donnée.
 
-        Renvoie pour une destination atteignable à partir du point de départ
-        -c'est à dire s'il existe un chemin reliant le point de départ et la
-        destination- une liste contenant les points dans l'odre de passage
-        du chemin ainsi que le coût minimal associé au trajet.
+        Renvoie pour un noeud destination atteignable à partir du noeud source
+        - c'est à dire s'il existe un chemin reliant le noeud source et le
+        noeud destination - une liste contenant les noeuds dans l'odre de
+        passage du chemin ainsi que le coût minimal associé au trajet.
 
-        Parameters
+        Parametres
         ----------
         source : str / int
-            noeud de départ nécessairement contenu dans le graphe
-        destination : str
-            noeud d'arrivée qui doit être contenu dans le graphe
+            noeud de départ nécessairement contenu dans la colonne des départs
+            de la table.
+        destination : str / int
+            noeud d'arrivée nécessairement contenu dans la colonne des arrivées
+            de la table.
 
-        Returns
+        Renvoie
         -------
         [[noeud,...],distance] : list
             liste comportant le plus court chemin et son coût.
         """
         if destination == source:
-            raise ValueError("'destination' est la source")
-        if source not in self.dataf[self.colonne_noeud_depart]:
-            raise ValueError("'source' est isolée")
-        if destination not in self.dataf[self.colonne_noeud_arrivee]:
-            raise ValueError("'destination' n'est pas atteignable")
+            raise ValueError(f"{destination} est la source et la destination")
+        if source not in set(self.dataf[self.colonne_noeud_depart]):
+            raise ValueError(f"{source} est isolée")
+        if destination not in set(self.dataf[self.colonne_noeud_arrivee]):
+            raise ValueError(f"{destination} n'est pas atteignable")
 
         graphe = self.graph()
         marques = []  # Contiendra le nom des sommets visités
