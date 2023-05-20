@@ -29,10 +29,10 @@ class Dijkstra:
 
         for i in set(dataf[colonne_distance]):
             if not isinstance(i, (float, int)):
-                raise TypeError("""Les distances associées aux arrêtes ne sont
+                raise TypeError("""Les distances associées aux arêtes ne sont
                     pas tous des nombres réels""")
             if i < 0:
-                raise ValueError("""Les distances associées aux arrêtes ne sont
+                raise ValueError("""Les distances associées aux arêtes ne sont
                     pas tous des réels strictement positifs""")
 
         self.dataf = dataf
@@ -90,54 +90,42 @@ class Dijkstra:
             raise ValueError(f"{source} est isolée")
 
         graphe = self.graph()
-        marques = []  # Contiendra le nom des sommets visités
-        # Distance minimale trouvée pour chaque valeur dès le départ
+        marques = []  # Contiendra le nom des noeuds visités
         distances = {sommet: (None, 2**30) for sommet in
                      set(self.dataf[self.colonne_noeud_depart]).union(
                      set(self.dataf[self.colonne_noeud_arrivee]))}
-        # Sommet d'origine (None par défaut), distance
-        distances[source] = 0  # On initialise la distance du départ
-        # Nombre de sommets du graphe, longueur du dictionnaire
         selection = source
         coefficient = 0
-
         while len(marques) < len(graphe) and selection is not None:
-            # On marque la 'selection'
             marques.append(selection)
-            # On parcours les voisins de 'selection'
-            for voisin in graphe[selection]:
+            for voisin in graphe[selection]:  # On parcours ses voisins
                 # voisin est le couple (noeud, poids)
-                noeud = voisin[0]  # Le sommet qu'on parcourt
-                poids = voisin[1]  # Le poids de selection au sommet
-                if noeud not in marques:
-                    # Pour chaque voisin non marqué,
-                    # on compare coefficient + arête
-                    # avec la distance du dictionnaire
-                    if coefficient + poids < distances[noeud][1]:
-                        # Si c'est plus petit, on remplace
-                        distances[noeud] = (selection, coefficient + poids)
-                    # On recherche le minimum parmi les non marqués
+                noeud = voisin[0]  # Le noeud qu'on parcourt
+                poids = voisin[1]  # Le poids de selection à noeud
+                if (noeud not in marques and
+                   coefficient + poids < distances[noeud][1]):
+                    # On met à jour la distance du noeud à la source
+                    distances[noeud] = (selection, coefficient + poids)
 
+            # On recherche le minimum parmi les non marqués
             minimum = (None, 2**30)
             for sommet in graphe:
                 if sommet not in marques and distances[sommet][1] < minimum[1]:
                     minimum = (sommet, distances[sommet][1])
-            # puis il devient notre nouvelle 'selection'
             selection, coefficient = minimum
 
         dict_parcours = {}
         for sommet in distances:
             if sommet != source:
-                parcours = [sommet]
-                intermediaire = sommet
                 if distances[sommet][1] == 2**30:
                     dict_parcours[sommet] = 'Pas de trajet'
-
-                else:  # Parcourt le graphe à l'envers pour obtenir le chemin
+                else:
+                    # Parcourt le graphe à l'envers pour obtenir le chemin
+                    parcours = [sommet]
+                    intermediaire = sommet
                     while intermediaire != source:
                         intermediaire = distances[intermediaire][0]
                         parcours.append(intermediaire)
-
                     parcours.reverse()
                     dict_parcours[sommet] = [parcours,
                                              distances[sommet][1]]
@@ -175,51 +163,37 @@ class Dijkstra:
             raise ValueError(f"{destination} n'est pas atteignable")
 
         graphe = self.graph()
-        marques = []  # Contiendra le nom des sommets visités
-        # Distance minimale trouvée pour chaque valeur dès le départ
+        marques = []  # Contiendra le nom des noeuds visités
         distances = {sommet: (None, 2**30) for sommet in
                      set(self.dataf[self.colonne_noeud_depart]).union(
                      set(self.dataf[self.colonne_noeud_arrivee]))}
-        # Sommet d'origine (None par défaut), distance
-        distances[source] = 0  # On initialise la distance du départ
-        # Nombre de sommets du graphe, longueur du dictionnaire
         selection = source
         coefficient = 0
-
         while len(marques) < len(graphe) and selection is not None:
-            # On marque la 'selection'
             marques.append(selection)
-            # On parcours les voisins de 'selection'
-            for voisin in graphe[selection]:
+            for voisin in graphe[selection]:  # On parcours ses voisins
                 # voisin est le couple (noeud, poids)
-                noeud = voisin[0]  # Le sommet qu'on parcourt
-                poids = voisin[1]  # Le poids de selection au sommet
-                if noeud not in marques:
-                    # Pour chaque voisin non marqué,
-                    # on compare coefficient + arête
-                    # avec la distance du dictionnaire
-                    if coefficient + poids < distances[noeud][1]:
-                        # Si c'est plus petit, on remplace
-                        distances[noeud] = (selection, coefficient + poids)
-                    # On recherche le minimum parmi les non marqués
+                noeud = voisin[0]  # Le noeud qu'on parcourt
+                poids = voisin[1]  # Le poids de selection à noeud
+                if (noeud not in marques and
+                   coefficient + poids < distances[noeud][1]):
+                    # On met à jour la distance du noeud à la source
+                    distances[noeud] = (selection, coefficient + poids)
 
+            # On recherche le minimum parmi les non marqués
             minimum = (None, 2**30)
             for sommet in graphe:
                 if sommet not in marques and distances[sommet][1] < minimum[1]:
                     minimum = (sommet, distances[sommet][1])
-            # puis il devient notre nouvelle 'selection'
             selection, coefficient = minimum
 
-        parcours = [destination]
-        longueur = distances[destination][1]
-        sommet = destination
-
-        if longueur == 2**30:
+        if distances[destination][1] == 2**30:
             return 'Pas de trajet'
-
         # Parcourt le graphe à l'envers pour obtenir le chemin
+        parcours = [destination]
+        sommet = destination
         while sommet != source:
             sommet = distances[sommet][0]
             parcours.append(sommet)
         parcours.reverse()
-        return [parcours, longueur]
+        return [parcours, distances[destination][1]]
