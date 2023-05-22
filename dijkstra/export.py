@@ -1,8 +1,4 @@
 # Exportation des données
-
-import pandas as pd
-
-
 class Export :
     """Exportation des données.
 

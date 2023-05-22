@@ -1,8 +1,6 @@
 """
 Module pour traiter les dataframes en tant que graphes.
 """
-import pandas as pd
-
 class Traitement:
     """
     Une classe pour traiter les dataframes pandas en tant que graphes.

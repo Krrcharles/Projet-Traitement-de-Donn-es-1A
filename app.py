@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, jsonify
+import dijkstra as dij
+
 
 app = Flask(__name__)
 

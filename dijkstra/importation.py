@@ -1,9 +1,4 @@
 # Importation des données
-
-import os
-import pandas as pd
-
-
 class Import:
     """Importation des données.
 

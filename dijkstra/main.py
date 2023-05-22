@@ -1,8 +1,3 @@
-from importation import *
-from traitement import *
-import pandas as pd
-from dijkstra import *
-
 df1 = Import("data", "tarifs-tgv-inoui-ouigo.csv").read()
 df1 = df1.drop(["Gare origine", "Destination", "Profil tarifaire", "Prix maximum"], axis= 1)
 df1 = df1.set_axis(["Transporteur", "Origine", "Destination", "Classe", "Prix"], axis= 1)
