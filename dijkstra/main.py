@@ -3,18 +3,20 @@ from traitement import *
 import pandas as pd
 from dijkstra import *
 
-df = Import("data", "tarifs-tgv-inoui-ouigo.csv").read()
-
-#print(df.head())
-
-proc = Traitement(df, "Gare origine - code UIC", "Gare destination - code UIC", "Prix minimum")
-
-df = proc.df
+df1 = Import("data", "tarifs-tgv-inoui-ouigo.csv").read()
+df1 = df1.drop(["Gare origine", "Destination", "Profil tarifaire", "Prix maximum"], axis= 1)
+df1 = df1.set_axis(["Transporteur", "Origine", "Destination", "Classe", "Prix"], axis= 1)
 
 
+df2 = Import("data", "tarifs-ter-par-od.csv").read()
+df2 = df2.drop(["Région", "Origine", "Destination", "Libellé tarif", "Type tarif"], axis= 1)
+df2 = df2.set_axis(["Origine", "Destination", "Prix"], axis= 1)
 
-g = proc.graph()
-d = Dijkstra(df, "Gare origine - code UIC", "Gare destination - code UIC", "Prix minimum")
+
+df = pd.concat([df1, df2],ignore_index=True, sort=False)
+
+print(df)
+
 
 #print(g[71116000])
 #print(d.graph()[71116000])
